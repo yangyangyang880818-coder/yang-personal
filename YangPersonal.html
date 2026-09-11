@@ -753,9 +753,12 @@
   ::-webkit-scrollbar-thumb { background: rgba(59, 130, 246, 0.3); border-radius: 999px; }
 
   /* ========== 资产管理 · 记账模块（蓝色调） ========== */
-  .ab-tabs { display:flex; gap:6px; background: var(--gradient-blue-soft); border-radius:999px; padding:5px; margin:0 0 16px; }
-  .ab-tab { flex:1; padding:8px; border:none; background:transparent; border-radius:999px; font-size:13px; font-weight:700; color: var(--text-soft); cursor:pointer; font-family: inherit; }
+  .ab-tabs { display:flex; gap:6px; width:100%; box-sizing:border-box; background: var(--gradient-blue-soft); border-radius:999px; padding:5px; margin:0 0 16px; }
+  .ab-tab { flex:1 1 0; min-width:0; padding:8px 4px; border:none; background:transparent; border-radius:999px; font-size:13px; font-weight:700; color: var(--text-soft); cursor:pointer; font-family: inherit; white-space:nowrap; text-align:center; overflow:hidden; text-overflow:ellipsis; }
   .ab-tab.active { background:#fff; color: var(--primary-deep); box-shadow: 0 2px 8px rgba(37,99,235,.12); }
+  .sub-card-btn { position:relative; cursor:pointer; }
+  .sub-card-btn:active { transform: scale(.98); }
+  .edit-pill { position:absolute; top:10px; right:12px; font-size:11px; font-weight:700; color: var(--primary-deep); background: var(--gradient-blue-soft); border-radius:999px; padding:3px 9px; }
   .ab-foot { text-align:center; color: var(--text-muted); font-size:11px; padding:20px 0 10px; }
   .ab-empty { text-align:center; padding:50px 20px; color: var(--text-muted); }
   .ab-empty .ico { font-size:44px; margin-bottom:10px; opacity:.5; }
@@ -1407,9 +1410,10 @@
           <span class="label">本周变化</span>
           <span class="value" id="w-week">--</span>
         </div>
-        <div class="sub-card">
+        <div class="sub-card sub-card-btn" onclick="editTargetWeight()" title="点击编辑目标体重">
           <span class="label">目标体重</span>
           <span class="value" id="w-target">50 kg</span>
+          <span class="edit-pill">✎ 编辑</span>
         </div>
       </div>
 
@@ -2247,15 +2251,33 @@ function viewImage(src) {
 }
 
 /* ===== 体重 ===== */
-function openWeightModal() {
-  openModal('记录体重', [
-    { name: 'kg', label: '体重(kg)', type: 'number', placeholder: '例如 52.3' },
-    { name: 'date', label: '日期', type: 'date', value: TODAY() },
-  ], v => {
-    if (!v.kg) return;
-    DB.weights.push({ date: v.date, kg: Number(v.kg) });
+function openWeightModal(editDate) {
+  const existing = editDate ? DB.weights.find(w => w.date === editDate) : null;
+  const init = existing ? existing.kg : '';
+  modalBody.innerHTML = `
+    <h3>${editDate ? '编辑体重' : '记录体重'}</h3>
+    <div class="form-group">
+      <label>体重(kg)</label>
+      <input class="input" type="number" id="m_wkg" placeholder="例如 52.3" value="${init}" />
+    </div>
+    <div class="form-group">
+      <label>日期</label>
+      <input class="input" type="date" id="m_wdate" value="${existing ? existing.date : TODAY()}" />
+    </div>
+    <div class="footer">
+      <button class="btn btn-ghost" onclick="closeModal()">取消</button>
+      <button class="btn" id="m-wsave">保存</button>
+    </div>`;
+  modalMask.classList.add('show');
+  document.getElementById('m-wsave').addEventListener('click', () => {
+    const raw = Number(document.getElementById('m_wkg').value);
+    if (!raw) return;
+    const date = document.getElementById('m_wdate').value || TODAY();
+    DB.weights = DB.weights.filter(w => w.date !== date);
+    DB.weights.push({ date, kg: raw });
     DB.weights.sort((a,b) => a.date.localeCompare(b.date));
     saveDB(); renderWeight(); renderOverview();
+    closeModal();
   });
 }
 function deleteWeight(d) {
@@ -2283,11 +2305,34 @@ function renderWeight() {
         <div class="checkbox" style="border-color:#cbdcf6;background:#eaf3ff;color:var(--primary-deep);">⚖️</div>
         <div class="title">${w.date}</div>
         <span class="tag date">${w.kg} kg</span>
-        <button class="icon-btn danger" onclick="deleteWeight('${w.date}')">
+        <button class="icon-btn" title="编辑" onclick="openWeightModal('${w.date}')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+        </button>
+        <button class="icon-btn danger" title="删除" onclick="deleteWeight('${w.date}')">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/></svg>
         </button>
       </div>`).join('');
   document.getElementById('weight-history').innerHTML = historyHtml;
+}
+function editTargetWeight() {
+  modalBody.innerHTML = `
+    <h3>编辑目标体重</h3>
+    <div class="form-group">
+      <label>目标体重(kg)</label>
+      <input class="input" type="number" id="m_tw" placeholder="例如 50" value="${DB.weightTarget}" />
+    </div>
+    <div class="footer">
+      <button class="btn btn-ghost" onclick="closeModal()">取消</button>
+      <button class="btn" id="m-tw-save">保存</button>
+    </div>`;
+  modalMask.classList.add('show');
+  document.getElementById('m-tw-save').addEventListener('click', () => {
+    const raw = document.getElementById('m_tw').value;
+    if (raw === '' || isNaN(Number(raw))) return;
+    DB.weightTarget = Number(raw);
+    saveDB(); renderWeight(); renderWeightChart(); renderOverview();
+    closeModal();
+  });
 }
 let weightChart;
 function renderWeightChart() {
