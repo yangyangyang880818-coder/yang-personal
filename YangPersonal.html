@@ -3,6 +3,10 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<!-- 防缓存：浏览器每次刷新都重新拉取本页，不会被旧缓存卡住（不影响 localStorage 历史数据） -->
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
 <title>YangPersonal · 充满智慧的小羊同学</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -208,9 +212,10 @@
     border: 1px solid rgba(219, 234, 254, 0.8);
     backdrop-filter: blur(10px);
     min-height: calc(100vh - 48px);
+    overflow-x: hidden;
   }
 
-  .page { display: none; }
+  .page { display: none; overflow-x: hidden; }
   .page.active { display: block; animation: fade .3s ease; }
   @keyframes fade { from { opacity: 0; transform: translateY(6px);} to { opacity: 1; transform: none; } }
 
@@ -685,6 +690,19 @@
   }
   .modal .form-group { margin-bottom: 12px; }
   .modal label { display: block; font-size: 12px; font-weight: 700; color: var(--text-soft); margin-bottom: 4px; }
+  /* iOS 原生 date/time 控件宽度限制：防止超出弹窗边界 */
+  .modal input[type="date"],
+  .modal input[type="time"],
+  .modal input[type="datetime-local"],
+  .modal input[type="month"] {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    font-size: 16px; /* 防止 iOS Safari 自动放大页面 */
+    -webkit-appearance: none;
+    appearance: none;
+  }
   .modal .footer {
     display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px;
     position: sticky; bottom: 0; background: #fff; padding-top: 10px; z-index: 2;
@@ -756,6 +774,8 @@
   .ab-tabs { display:flex; gap:6px; width:100%; box-sizing:border-box; background: var(--gradient-blue-soft); border-radius:999px; padding:5px; margin:0 0 16px; }
   .ab-tab { flex:1 1 0; min-width:0; padding:8px 4px; border:none; background:transparent; border-radius:999px; font-size:13px; font-weight:700; color: var(--text-soft); cursor:pointer; font-family: inherit; white-space:nowrap; text-align:center; overflow:hidden; text-overflow:ellipsis; }
   .ab-tab.active { background:#fff; color: var(--primary-deep); box-shadow: 0 2px 8px rgba(37,99,235,.12); }
+  #storage-warn { position:fixed; top:0; left:0; right:0; z-index:9999; background:#fef2f2; color:#b91c1c; border-bottom:1px solid #fecaca; font-size:12px; line-height:1.6; padding:9px 14px; box-shadow:0 2px 10px rgba(0,0,0,.08); }
+  #storage-warn i { font-style:normal; text-decoration:underline; }
   .sub-card-btn { position:relative; cursor:pointer; }
   .sub-card-btn:active { transform: scale(.98); }
   .edit-pill { position:absolute; top:10px; right:12px; font-size:11px; font-weight:700; color: var(--primary-deep); background: var(--gradient-blue-soft); border-radius:999px; padding:3px 9px; }
@@ -847,11 +867,11 @@
   .ab-filter::-webkit-scrollbar { display:none; }
   .ab-chip { padding:6px 12px; border-radius:999px; background:#fff; border:1px solid var(--border-soft); font-size:12px; color: var(--text-soft); cursor:pointer; white-space:nowrap; flex-shrink:0; }
   .ab-chip.active { background: var(--primary); color:#fff; border-color: var(--primary); }
-  .ab-monthbar { display:flex; align-items:center; justify-content:space-between; background:#fff; border:1px solid var(--border-soft); border-radius: var(--radius-md); padding:8px 12px; margin-bottom:12px; }
+  .ab-monthbar { display:flex; align-items:center; justify-content:space-between; background:#fff; border:1px solid var(--border-soft); border-radius: var(--radius-md); padding:8px 12px; margin-bottom:12px; width:100%; box-sizing:border-box; min-width:0; }
   .ab-monthbar button { width:28px; height:28px; border-radius:8px; background: var(--primary-soft); border:none; color: var(--primary-deep); cursor:pointer; font-size:14px; }
-  .ab-monthbar .ml { font-size:14px; font-weight:700; color: var(--text-primary); }
+  .ab-monthbar .ml { font-size:14px; font-weight:700; color: var(--text-primary); flex:1; text-align:center; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .ab-bills { display:flex; flex-direction:column; gap:8px; }
-  .ab-bill { background:#fff; border-radius: var(--radius-md); padding:12px 14px; border:1px solid var(--border-soft); display:flex; align-items:center; gap:12px; }
+  .ab-bill { background:#fff; border-radius: var(--radius-md); padding:12px 14px; border:1px solid var(--border-soft); display:flex; align-items:center; gap:12px; max-width:100%; min-width:0; box-sizing:border-box; }
   .ab-bill .av { width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; }
   .ab-bill .info { flex:1; min-width:0; }
   .ab-bill .info .top { display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; }
@@ -1127,17 +1147,17 @@
       <div class="nav-item" data-target="page-asset">
         <div class="ico">💼</div> 资产管理
       </div>
-      <div class="nav-item" data-target="page-todos">
-        <div class="ico">✅</div> 待办事项
-      </div>
-      <div class="nav-item" data-target="page-plans">
-        <div class="ico">📅</div> 每日计划
-      </div>
       <div class="nav-item" data-target="page-inspiration">
         <div class="ico">💡</div> 灵感记录
       </div>
       <div class="nav-item" data-target="page-notes">
         <div class="ico">📷</div> 摄影簿
+      </div>
+      <div class="nav-item" data-target="page-todos">
+        <div class="ico">✅</div> 待办事项
+      </div>
+      <div class="nav-item" data-target="page-plans">
+        <div class="ico">📅</div> 每日计划
       </div>
       <div class="nav-item" data-target="page-exercise">
         <div class="ico">🏃‍♀️</div> 运动打卡
@@ -1202,30 +1222,6 @@
           <a class="link">查看详情 →</a>
         </div>
 
-        <div class="card" onclick="showPage('page-todos')" style="cursor:pointer;">
-          <div class="card-head">
-            <div class="card-ico">✅</div>
-            <div>
-              <div class="card-name">待办事项</div>
-              <div class="card-meta">还有 <span id="ov-todo-pending">0</span> 项待办，<span id="ov-todo-imp">0</span> 项重要</div>
-            </div>
-          </div>
-          <div class="card-value"><span id="ov-todo-total">0</span><small>总数</small></div>
-          <a class="link">查看详情 →</a>
-        </div>
-
-        <div class="card" onclick="showPage('page-plans')" style="cursor:pointer;">
-          <div class="card-head">
-            <div class="card-ico">📅</div>
-            <div>
-              <div class="card-name">每日计划</div>
-              <div class="card-meta">今日已完成 <span id="ov-plan-done">0</span> 项计划</div>
-            </div>
-          </div>
-          <div class="card-value"><span id="ov-plan-total">0</span><small>项目</small></div>
-          <a class="link">查看详情 →</a>
-        </div>
-
         <div class="card" onclick="showPage('page-inspiration')" style="cursor:pointer;">
           <div class="card-head">
             <div class="card-ico">💡</div>
@@ -1247,6 +1243,30 @@
             </div>
           </div>
           <div class="card-value"><span id="ov-note-today">0</span><small>本周新增</small></div>
+          <a class="link">查看详情 →</a>
+        </div>
+
+        <div class="card" onclick="showPage('page-todos')" style="cursor:pointer;">
+          <div class="card-head">
+            <div class="card-ico">✅</div>
+            <div>
+              <div class="card-name">待办事项</div>
+              <div class="card-meta">还有 <span id="ov-todo-pending">0</span> 项待办，<span id="ov-todo-imp">0</span> 项重要</div>
+            </div>
+          </div>
+          <div class="card-value"><span id="ov-todo-total">0</span><small>总数</small></div>
+          <a class="link">查看详情 →</a>
+        </div>
+
+        <div class="card" onclick="showPage('page-plans')" style="cursor:pointer;">
+          <div class="card-head">
+            <div class="card-ico">📅</div>
+            <div>
+              <div class="card-name">每日计划</div>
+              <div class="card-meta">今日已完成 <span id="ov-plan-done">0</span> 项计划</div>
+            </div>
+          </div>
+          <div class="card-value"><span id="ov-plan-total">0</span><small>项目</small></div>
           <a class="link">查看详情 →</a>
         </div>
 
@@ -1423,7 +1443,7 @@
       </div>
 
       <div class="card">
-        <div class="card-name" style="margin-bottom:10px;">📝 历史记录</div>
+        <div class="card-name" style="margin-bottom:10px;">📝 历史记录（点击任意记录可编辑）</div>
         <div id="weight-history"></div>
       </div>
     </section>
@@ -1549,6 +1569,9 @@
     <div class="ab-field" id="r-shop-field" style="display:none;">
       <label>购买渠道</label><div class="ab-picker" id="r-shop-picker"></div>
     </div>
+    <div class="ab-field" id="r-dining-field" style="display:none;">
+      <label>购买渠道</label><div class="ab-picker" id="r-dining-picker"></div>
+    </div>
     <div class="ab-field"><label>备注</label><input type="text" id="r-note" placeholder="可填写具体内容" maxlength="50"></div>
     <div class="ab-actions">
       <button class="btn" onclick="abCloseRec()">取消</button>
@@ -1643,6 +1666,10 @@
 ===================================================================== */
 
 const STORAGE_KEY = 'yangpersonal_data_v1';
+
+// 构建版本号：唯一版本来源。部署脚本（deploy.py）每次部署会自动 +1，
+// 并同步更新 index.html 的 ?v= 跳转，确保刷新即拿到最新版。
+const BUILD_VERSION = 11;
 const TODAY = () => new Date().toISOString().slice(0,10);
 const WEEKDAY = ['日','一','二','三','四','五','六'];
 
@@ -1681,8 +1708,8 @@ const defaultData = {
   },
   bill: {
     records: [
-      { id: id(), type:'expense', amount:66, category:'餐饮', categoryId:'food', date:TODAY(), time:'12:30', channel:'招商', channelId:'cmb', note:'午餐', shoppingPlatform:'', shoppingPlatformId:'', createdAt:Date.now(), refunded:false, refundFee:0, refundNote:'', refundDate:'' },
-      { id: id(), type:'income', amount:8000, category:'薪资', categoryId:'salary', date:TODAY(), time:'10:00', channel:'招商', channelId:'cmb', note:'本月工资', shoppingPlatform:'', shoppingPlatformId:'', createdAt:Date.now(), refunded:false, refundFee:0, refundNote:'', refundDate:'' }
+      { id: id(), type:'expense', amount:66, category:'餐饮', categoryId:'food', date:TODAY(), time:'12:30', channel:'招商', channelId:'cmb', note:'午餐', shoppingPlatform:'', shoppingPlatformId:'', diningPlatform:'', diningPlatformId:'', createdAt:Date.now(), refunded:false, refundFee:0, refundNote:'', refundDate:'' },
+      { id: id(), type:'income', amount:8000, category:'薪资', categoryId:'salary', date:TODAY(), time:'10:00', channel:'招商', channelId:'cmb', note:'本月工资', shoppingPlatform:'', shoppingPlatformId:'', diningPlatform:'', diningPlatformId:'', createdAt:Date.now(), refunded:false, refundFee:0, refundNote:'', refundDate:'' }
     ],
     budget: 5000,
     warnThreshold: 1000,
@@ -1718,6 +1745,12 @@ const defaultData = {
       { id:'pdd', name:'拼多多', emoji:'🅿️' },
       { id:'xhs', name:'小红书', emoji:'🍠' },
     ],
+    diningPlatforms: [
+      { id:'taobao', name:'淘宝', emoji:'🍑' },
+      { id:'meituan', name:'美团', emoji:'🥡' },
+      { id:'jd', name:'京东', emoji:'🐶' },
+      { id:'douyin', name:'抖音', emoji:'🎵' },
+    ],
     profile: { avatar:'🐱', nickname:'充满智慧的小羊同学', bg:'gradient2' }
   },
   exercises: [
@@ -1742,23 +1775,97 @@ function dateAdd(d) {
 }
 
 /* ===== 数据加载 ===== */
+function lsGetRaw(){ try { return localStorage.getItem(STORAGE_KEY); } catch(e){ return null; } }
+function mergeStored(parsed){
+  return applyCanonical({
+    ...JSON.parse(JSON.stringify(defaultData)), ...parsed,
+    assets: { ...JSON.parse(JSON.stringify(defaultData.assets)), ...(parsed.assets||{}) },
+    bill:   { ...JSON.parse(JSON.stringify(defaultData.bill)),   ...(parsed.bill||{}) },
+    diet:   { ...JSON.parse(JSON.stringify(defaultData.diet)),   ...(parsed.diet||{}) },
+  });
+}
 let DB = loadDB();
 function loadDB() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = lsGetRaw();
     if (!raw) return applyCanonical(JSON.parse(JSON.stringify(defaultData)));
-    const parsed = JSON.parse(raw);
-    // 简单合并默认值（防止未来升级缺少字段）
-    const merged = { ...JSON.parse(JSON.stringify(defaultData)), ...parsed,
-      assets: { ...JSON.parse(JSON.stringify(defaultData.assets), ...parsed.assets || {}) },
-      bill: { ...JSON.parse(JSON.stringify(defaultData.bill)), ...parsed.bill || {} },
-      diet: { ...JSON.parse(JSON.stringify(defaultData.diet)), ...parsed.diet || {} },
-    };
-    return applyCanonical(merged);
+    return mergeStored(JSON.parse(raw));
   } catch(e) { return JSON.parse(JSON.stringify(defaultData)); }
 }
+
+/* ===== IndexedDB 兜底存储（抗 iOS「添加到主屏幕」独立 App 清空 localStorage） ===== */
+const IDB_NAME = 'yangpersonal_idb';
+const IDB_STORE = 'kv';
+function idbAvailable(){ return (typeof indexedDB !== 'undefined' && indexedDB !== null); }
+function idbOpen(){
+  return new Promise((resolve, reject) => {
+    if (!idbAvailable()) return reject(new Error('no-idb'));
+    const req = indexedDB.open(IDB_NAME, 1);
+    req.onupgradeneeded = () => { try { req.result.createObjectStore(IDB_STORE); } catch(e){} };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error || new Error('idb-open-fail'));
+  });
+}
+function idbPut(key, val){
+  return idbOpen().then(db => new Promise((resolve, reject) => {
+    try {
+      const tx = db.transaction(IDB_STORE, 'readwrite');
+      tx.objectStore(IDB_STORE).put(val, key);
+      tx.oncomplete = () => { db.close(); resolve(true); };
+      tx.onerror = () => { db.close(); reject(tx.error || new Error('idb-put-fail')); };
+    } catch(e){ try{ db.close(); }catch(_){ } reject(e); }
+  }));
+}
+function idbGet(key){
+  return idbOpen().then(db => new Promise((resolve, reject) => {
+    try {
+      const tx = db.transaction(IDB_STORE, 'readonly');
+      const r = tx.objectStore(IDB_STORE).get(key);
+      r.onsuccess = () => { db.close(); resolve(r.result); };
+      r.onerror = () => { db.close(); reject(r.error || new Error('idb-get-fail')); };
+    } catch(e){ try{ db.close(); }catch(_){ } reject(e); }
+  }));
+}
+// 启动后异步从 IndexedDB 恢复（仅当 localStorage 被清空时）
+function hydrateFromIDB(){
+  if (!idbAvailable()) return;
+  idbGet(STORAGE_KEY).then(raw => {
+    if (!raw) return;
+    if (lsGetRaw()) return; // localStorage 有数据则信任它，不覆盖
+    try {
+      DB = mergeStored(JSON.parse(raw));
+      renderAvatars(); applyBackground(); renderPlans(); renderTodos();
+      renderInspiration(); renderNotes(); renderWeight(); renderAssetPage();
+      renderExercise(); renderDiet(); renderOverview();
+      try { if (typeof abToast === 'function') abToast('已从本地备份恢复数据'); } catch(e){}
+      saveDB(); // 把恢复的数据重新同步到两份存储
+    } catch(e){}
+  }).catch(()=>{});
+}
+
+let STORAGE_DISABLED = false;
+function testStorage(){
+  try { const k='__yp_stest__'; localStorage.setItem(k,'1'); localStorage.removeItem(k); return true; }
+  catch(e){ return false; }
+}
+function showStorageWarn(){
+  if (document.getElementById('storage-warn')) return;
+  const b=document.createElement('div');
+  b.id='storage-warn';
+  b.innerHTML='⚠️ 当前浏览器<i>无法保存数据</i>（可能是无痕/隐私模式，或禁用了 Cookie，或是把本页「添加到主屏幕」后用独立 App 打开）。在此模式下记录的内容<b>刷新 / 关闭后会丢失</b>。请改用普通 Safari 浏览器打开本页（用「加入书签」从书签进入比主屏幕图标更耐用），或定期到「资产管理 → 设置 → 导出全部数据备份」把数据存到手机。';
+  document.body.appendChild(b);
+}
 function saveDB() {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(DB)); } catch(e) {}
+  let lsOK = false;
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(DB)); lsOK = true; }
+  catch(e) { /* localStorage 不可用（隐私模式 / 主屏幕独立 App 常被清） */ }
+  let idbOK = false;
+  if (idbAvailable()) {
+    idbPut(STORAGE_KEY, JSON.stringify(DB)).catch(()=>{}); // 异步兜底写入 IndexedDB
+    idbOK = true; // 乐观标记：IndexedDB 通常比主屏幕独立 App 的 localStorage 更耐用
+  }
+  STORAGE_DISABLED = !(lsOK || idbOK); // 只要有一处能存，就算可保存
+  if (STORAGE_DISABLED) showStorageWarn();
 }
 
 /* ===== 头像上传 ===== */
@@ -2300,16 +2407,22 @@ function renderWeight() {
   // 历史
   const historyHtml = DB.weights.length === 0
     ? `<div class="empty"><div class="ico">⚖️</div>暂无体重记录</div>`
-    : [...DB.weights].reverse().map(w => `
-      <div class="task">
+      : [...DB.weights].reverse().map(w => `
+      <div class="task" style="cursor:pointer" onclick="openWeightModal('${w.date}')">
         <div class="checkbox" style="border-color:#cbdcf6;background:#eaf3ff;color:var(--primary-deep);">⚖️</div>
         <div class="title">${w.date}</div>
         <span class="tag date">${w.kg} kg</span>
-        <button class="icon-btn" title="编辑" onclick="openWeightModal('${w.date}')">
+        <button class="icon-btn" title="编辑" onclick="event.stopPropagation();openWeightModal('${w.date}')">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
         </button>
-        <button class="icon-btn danger" title="删除" onclick="deleteWeight('${w.date}')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/></svg>
+        <button class="icon-btn danger" title="删除" style="color:#ef4444" onclick="event.stopPropagation();deleteWeight('${w.date}')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="3 6 5 6 21 6"/>
+            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+            <path d="M10 11v6"/>
+            <path d="M14 11v6"/>
+            <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+          </svg>
         </button>
       </div>`).join('');
   document.getElementById('weight-history').innerHTML = historyHtml;
@@ -2386,10 +2499,12 @@ let recType = 'expense';
 let selCatId = null;
 let selChId = 'wechat';
 let selPfId = null;
+let selDiningPfId = null;
 let catMgmtType = 'expense';
 let pieChartBill = null, barChartBill = null;
 let refundTargetId = null;
 const SHOPPING_CAT_ID = 'shop';
+const DINING_CAT_ID = 'food';
 
 function billToday() { const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
 function billNow() { const d=new Date(); return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; }
@@ -2398,7 +2513,8 @@ function abUid(){ return Date.now().toString(36) + Math.random().toString(36).sl
 function abToast(msg){ const t=document.getElementById('a-toast'); if(!t) return; t.textContent=msg; t.classList.add('show'); clearTimeout(window._at); window._at=setTimeout(()=>t.classList.remove('show'),1800); }
 function findBillCat(type,id){ const list=DB.bill.categories[type==='expense'?'expense':'income']; return list.find(c=>c.id===id)||list[list.length-1]; }
 function findBillCh(id){ return DB.bill.channels.find(c=>c.id===id)||DB.bill.channels[0]; }
-function findBillPf(id){ return DB.bill.platforms.find(p=>p.id===id)||DB.bill.platforms[0]; }
+function findBillPf(id){ return DB.bill.platforms.find(p=>p.id===id)||null; }
+function findBillDiningPf(id){ return DB.bill.diningPlatforms.find(p=>p.id===id)||null; }
 function effAmt(r){ if(r.type!=='expense') return r.amount; if(!r.refunded) return r.amount; return Number(r.refundFee)||0; }
 // 按默认顺序重排内置项，自定义项（不在默认列表中的）保留并置于末尾
 function canonicalSortBill(arr, canonicalIds){
@@ -2414,6 +2530,7 @@ function applyCanonical(d){
     d.bill.categories.expense = canonicalSortBill(d.bill.categories.expense, defaultData.bill.categories.expense.map(c=>c.id));
     d.bill.channels = canonicalSortBill(d.bill.channels, defaultData.bill.channels.map(c=>c.id));
     d.bill.platforms = canonicalSortBill(d.bill.platforms, defaultData.bill.platforms.map(c=>c.id));
+    if(Array.isArray(d.bill.diningPlatforms)) d.bill.diningPlatforms = canonicalSortBill(d.bill.diningPlatforms, defaultData.bill.diningPlatforms.map(c=>c.id));
   }
   return d;
 }
@@ -2526,6 +2643,7 @@ function abRenderBillList(){
     const cat=DB.bill.categories[r.type==='expense'?'expense':'income'].find(c=>c.id===r.categoryId)||{emoji:'📌',name:r.category};
     const ch=DB.bill.channels.find(c=>c.id===r.channelId)||{emoji:'💼',name:r.channel};
     const pf=r.shoppingPlatformId?DB.bill.platforms.find(p=>p.id===r.shoppingPlatformId):null;
+    const dpf=r.diningPlatformId?DB.bill.diningPlatforms.find(p=>p.id===r.diningPlatformId):null;
     const isRef=r.refunded;
     const show=`-¥${r.amount.toFixed(2)}`;
     const ins=`+¥${r.amount.toFixed(2)}`;
@@ -2543,6 +2661,7 @@ function abRenderBillList(){
           <span>📅 ${r.date} ${r.time||''}</span>
           <span class="ch">${ch.emoji} ${escapeHtml(r.channel)}</span>
           ${pf?`<span class="ch" style="background:#e0ecff;">${pf.emoji} ${escapeHtml(pf.name)}</span>`:''}
+          ${dpf?`<span class="ch" style="background:#dcfce7;">${dpf.emoji} ${escapeHtml(dpf.name)}</span>`:''}
         </div>
         ${r.note&&!isRef?`<div class="note">💬 ${escapeHtml(r.note)}</div>`:''}
         ${refundLine}
@@ -2716,6 +2835,7 @@ function abOpenRec(type, preCatId){
   selCatId=preCatId||null;
   selChId=DB.bill.channels[0]?.id||'wechat';
   selPfId=null;
+  selDiningPfId=null;
   document.getElementById('record-modal-title').textContent=recType==='expense'?'记一笔支出':'记一笔收入';
   abRenderPicker();
   document.getElementById('record-modal').classList.add('show');
@@ -2732,14 +2852,20 @@ function abRenderPicker(){
   document.getElementById('r-channel-picker').innerHTML=DB.bill.channels.map(c=>`<div class="ab-cell ${selChId===c.id?'sel':''}" onclick="abPickChannel('${c.id}')"><div class="ic">${c.emoji}</div><div class="nm">${c.name}</div></div>`).join('');
   const curCat=DB.bill.categories[recType].find(c=>c.id===selCatId);
   const isShop=recType==='expense'&&curCat&&curCat.id===SHOPPING_CAT_ID;
+  const isDining=recType==='expense'&&curCat&&curCat.id===DINING_CAT_ID;
   const shopField=document.getElementById('r-shop-field');
   if(shopField){ shopField.style.display=isShop?'block':'none';
-    if(isShop){ document.getElementById('r-shop-picker').innerHTML=DB.bill.platforms.map(p=>`<div class="ab-cell ${selPfId===p.id?'sel':''}" onclick="abPickPlatform('${p.id}')"><div class="ic">${p.emoji}</div><div class="nm">${p.name}</div></div>`).join(''); if(!selPfId&&DB.bill.platforms.length>0) selPfId=DB.bill.platforms[0].id; }
+    if(isShop){ document.getElementById('r-shop-picker').innerHTML=DB.bill.platforms.map(p=>`<div class="ab-cell ${selPfId===p.id?'sel':''}" onclick="abPickPlatform('${p.id}')"><div class="ic">${p.emoji}</div><div class="nm">${p.name}</div></div>`).join(''); }
+  }
+  const diningField=document.getElementById('r-dining-field');
+  if(diningField){ diningField.style.display=isDining?'block':'none';
+    if(isDining){ document.getElementById('r-dining-picker').innerHTML=DB.bill.diningPlatforms.map(p=>`<div class="ab-cell ${selDiningPfId===p.id?'sel':''}" onclick="abPickDiningPlatform('${p.id}')"><div class="ic">${p.emoji}</div><div class="nm">${p.name}</div></div>`).join(''); }
   }
 }
-function abPickCat(id){ selCatId=id; selPfId=null; abRenderPicker(); }
+function abPickCat(id){ selCatId=id; selPfId=null; selDiningPfId=null; abRenderPicker(); }
 function abPickChannel(id){ selChId=id; document.querySelectorAll('#r-channel-picker .ab-cell').forEach(el=>el.classList.remove('sel')); event.currentTarget.classList.add('sel'); }
 function abPickPlatform(id){ selPfId=id; abRenderPicker(); }
+function abPickDiningPlatform(id){ selDiningPfId=id; abRenderPicker(); }
 function abSaveRec(){
   const amount=parseFloat(document.getElementById('r-amount').value);
   const date=document.getElementById('r-date').value;
@@ -2751,8 +2877,10 @@ function abSaveRec(){
   const cat=findBillCat(recType,selCatId);
   const ch=findBillCh(selChId);
   const isShop=recType==='expense'&&cat.id===SHOPPING_CAT_ID;
-  const pf=isShop?findBillPf(selPfId):null;
-  const rec={ id: billEditId||abUid(), type:recType, amount, category:cat.name, categoryId:cat.id, date, time:time||billNow(), channel:ch.name, channelId:ch.id, note, shoppingPlatform:isShop&&pf?pf.name:'', shoppingPlatformId:isShop&&pf?pf.id:'', createdAt:Date.now(), refunded:false, refundFee:0, refundNote:'', refundDate:'' };
+  const isDining=recType==='expense'&&cat.id===DINING_CAT_ID;
+  const pf=isShop&&selPfId?findBillPf(selPfId):null;
+  const dpf=isDining&&selDiningPfId?findBillDiningPf(selDiningPfId):null;
+  const rec={ id: billEditId||abUid(), type:recType, amount, category:cat.name, categoryId:cat.id, date, time:time||billNow(), channel:ch.name, channelId:ch.id, note, shoppingPlatform:isShop&&pf?pf.name:'', shoppingPlatformId:isShop&&pf?pf.id:'', diningPlatform:isDining&&dpf?dpf.name:'', diningPlatformId:isDining&&dpf?dpf.id:'', createdAt:Date.now(), refunded:false, refundFee:0, refundNote:'', refundDate:'' };
   if(billEditId){ const idx=DB.bill.records.findIndex(r=>r.id===billEditId); if(idx>=0) DB.bill.records[idx]={...DB.bill.records[idx],...rec}; }
   else DB.bill.records.push(rec);
   saveBill(); abCloseRec(); abToast(billEditId?'已更新':(recType==='expense'?'已记支出':'已记收入'));
@@ -2762,7 +2890,7 @@ function abOpenEdit(id){ const r=DB.bill.records.find(x=>x.id===id); if(!r) retu
   document.querySelectorAll('#record-type-seg button').forEach(b=>b.classList.toggle('active', b.dataset.type===r.type));
   document.getElementById('record-modal-title').textContent='编辑账单';
   document.getElementById('r-amount').value=r.amount; document.getElementById('r-date').value=r.date; document.getElementById('r-time').value=r.time||''; document.getElementById('r-note').value=r.note||'';
-  selCatId=r.categoryId; selChId=r.channelId||(DB.bill.channels[0]&&DB.bill.channels[0].id); selPfId=r.shoppingPlatformId||null;
+  selCatId=r.categoryId; selChId=r.channelId||(DB.bill.channels[0]&&DB.bill.channels[0].id); selPfId=r.shoppingPlatformId||null; selDiningPfId=r.diningPlatformId||null;
   abRenderPicker(); document.getElementById('record-modal').classList.add('show');
 }
 function abDeleteRec(id){ const r=DB.bill.records.find(x=>x.id===id); if(!r) return; if(!confirm(`确定删除这条${r.type==='expense'?'支出':'收入'}？\n\n${r.category} ${abFmt(r.amount)} · ${r.date}\n\n此操作不可恢复`)) return; DB.bill.records=DB.bill.records.filter(x=>x.id!==id); saveBill(); assetSwitch(assetTab); renderOverview(); abToast('已删除'); }
@@ -2799,6 +2927,30 @@ function abImportJSON(e){ const file=e.target.files[0]; if(!file) return; const 
 function abExportCSV(){ if(DB.bill.records.length===0){ abToast('暂无数据'); return; } const rows=[['日期','时间','类型','分类','原金额','净支出','已退货','退货运费','退货备注','渠道','购买渠道','备注']]; DB.bill.records.slice().sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time)).forEach(r=>{ rows.push([r.date,r.time||'',r.type==='expense'?'支出':'收入',r.category,r.amount.toFixed(2),effAmt(r).toFixed(2),r.refunded?'是':'',r.refunded?((Number(r.refundFee)||0).toFixed(2)):'',r.refunded?(r.refundNote||''):'',r.channel,r.shoppingPlatform||'',(r.note||'').replace(/,/g,'，')]); }); const csv='\uFEFF'+rows.map(r=>r.map(c=>`"${c}"`).join(',')).join('\n'); const blob=new Blob([csv],{type:'text/csv;charset=utf-8'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=`YangPersonal账单-${billToday()}.csv`; a.click(); URL.revokeObjectURL(url); abToast('已导出 CSV'); }
 function abConfirmClear(){ if(!confirm('将清空所有记账数据（不可恢复），是否继续？')) return; if(!confirm('再次确认：所有数据将被永久删除！')) return; DB.bill.records=[]; saveBill(); assetSwitch(assetTab); renderOverview(); abToast('已清空'); }
 
+/* ---------- 全部数据备份（体重/笔记/记账/运动/饮食 等整体） ---------- */
+function exportAllDB(){
+  const d=new Date(); const ds=`${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
+  const blob=new Blob([JSON.stringify(DB,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url;
+  a.download=`YangPersonal备份-${ds}.json`; a.click(); URL.revokeObjectURL(url);
+  abToast('已导出全部数据备份');
+}
+function importAllDB(e){
+  const file=e.target.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=ev=>{ try{
+    const s=JSON.parse(ev.target.result);
+    if(!s||typeof s!=='object') throw new Error('格式错误');
+    if(!confirm('将导入备份并覆盖当前全部数据（体重 / 笔记 / 记账 / 运动 / 饮食等），是否继续？')) return;
+    DB = applyCanonical({ ...JSON.parse(JSON.stringify(defaultData)), ...s });
+    saveDB();
+    renderAvatars(); applyBackground(); renderPlans(); renderTodos(); renderInspiration(); renderNotes(); renderWeight(); renderAssetPage(); renderExercise(); renderDiet(); renderOverview();
+    if(STORAGE_DISABLED) showStorageWarn();
+    abToast('导入成功');
+  }catch(err){ abToast('导入失败：'+err.message); } };
+  reader.readAsText(file); e.target.value='';
+}
+
 /* ---------- 个人资料 ---------- */
 const AB_BG={ gradient1:'linear-gradient(135deg,#2563eb 0%,#3b82f6 50%,#93c5fd 100%)', gradient2:'linear-gradient(135deg,#3b82f6 0%,#60a5fa 50%,#93c5fd 100%)', gradient3:'linear-gradient(135deg,#f59e0b 0%,#fbbf24 50%,#fde68a 100%)', gradient4:'linear-gradient(135deg,#ec4899 0%,#f472b6 50%,#fbcfe8 100%)', gradient5:'linear-gradient(135deg,#6366f1 0%,#818cf8 50%,#c7d2fe 100%)' };
 function abOpenProfile(){ const pf=DB.bill.profile; document.getElementById('pf-avatar').value=pf.avatar; document.getElementById('pf-nickname').value=pf.nickname; document.getElementById('pf-bg').value=pf.bg; abRenderBgPreview(pf.bg); document.getElementById('profile-modal').classList.add('show'); }
@@ -2828,9 +2980,14 @@ function renderAssetSettings(){
       <div class="ab-me-item" onclick="abExportCSV()"><div class="mi"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><div class="name">导出账单（CSV）</div><span class="arrow">›</span></div>
     </div>
     <div class="ab-me-list">
+      <div class="ab-me-item" onclick="exportAllDB()"><div class="mi"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div><div class="name">导出全部数据备份</div><span class="arrow">›</span></div>
+      <div class="ab-me-item" onclick="document.getElementById('db-import-input').click()"><div class="mi"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div><div class="name">导入全部数据备份</div><span class="arrow">›</span></div>
+    </div>
+    <div class="ab-me-list">
       <div class="ab-me-item" onclick="abConfirmClear()"><div class="mi danger"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg></div><div class="name">清除所有数据</div><span class="arrow">›</span></div>
     </div>
     <input type="file" id="ab-import-input" accept=".json" style="display:none" onchange="abImportJSON(event)">
+    <input type="file" id="db-import-input" accept=".json" style="display:none" onchange="importAllDB(event)">
     <div class="ab-foot">YangPersonal · 资产管理 · 数据本地保存</div>
   `;
 }
@@ -2843,7 +3000,7 @@ function migrateOldBill(){
     if(DB.bill.records && DB.bill.records.length>0) return; // 已有数据则不覆盖
     const s=JSON.parse(raw);
     if(!s.records||!Array.isArray(s.records)) return;
-    DB.bill.records=s.records.map(r=>({ refunded:false,refundFee:0,refundNote:'',refundDate:'',shoppingPlatform:'',shoppingPlatformId:'',...r }));
+    DB.bill.records=s.records.map(r=>({ refunded:false,refundFee:0,refundNote:'',refundDate:'',shoppingPlatform:'',shoppingPlatformId:'',diningPlatform:'',diningPlatformId:'',...r }));
     if(typeof s.budget==='number') DB.bill.budget=s.budget;
     if(typeof s.warnThreshold==='number') DB.bill.warnThreshold=s.warnThreshold;
     if(s.categories) DB.bill.categories=s.categories;
@@ -3115,6 +3272,8 @@ function init() {
     `${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日 星期${WEEKDAY[now.getDay()]}`;
 
   migrateOldBill();
+  STORAGE_DISABLED = !(testStorage() || idbAvailable());
+  if (STORAGE_DISABLED) showStorageWarn();
   renderAvatars();
   applyBackground();
   renderPlans();
@@ -3126,6 +3285,7 @@ function init() {
   renderExercise();
   renderDiet();
   renderOverview();
+  hydrateFromIDB(); // 若 localStorage 被 iOS 主屏幕独立 App 清空，异步从 IndexedDB 恢复
 }
 init();
 </script>
